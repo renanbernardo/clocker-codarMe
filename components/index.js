@@ -1,3 +1,3 @@
 export * from './Logo'
-export * from './LoginIndex'
+export * from './Login'
 export * from './Agenda'

@@ -14,8 +14,7 @@ import {
 } from '@chakra-ui/react'
 
 import { Logo } from './../components'
-import firebase from './../config/firebase'
-import 'firebase/auth'
+import { firebaseClient } from '../config/firebase'
 
 // UMA ABSTRAÇÃO ERRADA É MTO PIOR QUE UM CÓDIGO DUPLICADO
 
@@ -37,7 +36,7 @@ export default function Home() {
   } = useFormik({
     onSubmit: async (values, form) => { 
       try {
-        const user = await firebase.auth().createUserWithEmailAndPassword(values.email, values.password)
+        const user = await firebaseClient.auth().createUserWithEmailAndPassword(values.email, values.password)
         console.log(user);
       } catch(error) {
         console.log(error)
