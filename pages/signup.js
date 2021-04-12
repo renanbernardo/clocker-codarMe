@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 
 import { Logo } from './../components'
-import { firebaseClient } from '../config/firebase'
+import { firebaseClient } from '../config/firebase/client'
 
 // UMA ABSTRAÇÃO ERRADA É MTO PIOR QUE UM CÓDIGO DUPLICADO
 
