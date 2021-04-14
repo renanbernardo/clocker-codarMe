@@ -33,3 +33,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# firebase 
+config/firebase/clock-er-firebase-adminsdk-3eszb-51ba69e2a6.json

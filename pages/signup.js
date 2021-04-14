@@ -1,6 +1,7 @@
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
-import Link from 'next/link'
 
 import {
   Container,
@@ -10,11 +11,13 @@ import {
   Text,
   FormControl,
   FormLabel,
-  FormHelperText
+  FormHelperText,  
+  InputLeftAddon,
+  InputGroup
 } from '@chakra-ui/react'
 
-import { Logo } from './../components'
-import { firebaseClient } from '../config/firebase/client'
+import { Logo, useAuth } from './../components'
+import { useEffect } from 'react'
 
 // UMA ABSTRAÇÃO ERRADA É MTO PIOR QUE UM CÓDIGO DUPLICADO
 
@@ -25,6 +28,10 @@ const validationSchema = yup.object().shape({
 })
 
 export default function Home() {
+  const [auth, { signup }] = useAuth()
+
+  const router = useRouter()
+
   const {
     values,
     errors,
@@ -34,14 +41,7 @@ export default function Home() {
     handleBlur,
     isSubmitting
   } = useFormik({
-    onSubmit: async (values, form) => { 
-      try {
-        const user = await firebaseClient.auth().createUserWithEmailAndPassword(values.email, values.password)
-        console.log(user);
-      } catch(error) {
-        console.log(error)
-      }      
-    },
+    onSubmit: signup,
     validationSchema,
     initialValues: {
       email: '',
@@ -49,6 +49,10 @@ export default function Home() {
       password: ''
     }
   })
+
+  useEffect(() => {
+    auth.user && router.push('/agenda')
+  }, [auth.user])
 
   return (
     <Container p={4} centerContent>
@@ -69,6 +73,14 @@ export default function Home() {
           <FormLabel>Senha</FormLabel>
           <Input size="lg" type="password" value={values.password} onChange={handleChange} onBlur={handleBlur} />
           {touched.password && <FormHelperText textColor={'#e74c3c'}>{errors.password}</FormHelperText>}
+        </FormControl>
+
+        <FormControl id="username" p={4} isRequired>
+          <InputGroup size="lg">
+            <InputLeftAddon children="clocker.work/" />
+            <Input type="username" value={values.username} onChange={handleChange} onBlur={handleBlur} />
+          </InputGroup>
+          {touched.username && <FormHelperText textColor={'#e74c3c'}>{errors.username}</FormHelperText>}
         </FormControl>
 
         <Box p={4}>

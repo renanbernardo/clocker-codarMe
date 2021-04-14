@@ -1,4 +1,6 @@
 import { useFormik } from 'formik'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import * as yup from 'yup'
 import Link from 'next/link'
 
@@ -10,20 +12,20 @@ import {
   Text,
   FormControl,
   FormLabel,
-  FormHelperText,
-  InputLeftAddon,
-  InputGroup
+  FormHelperText
 } from '@chakra-ui/react'
 
-import { Logo } from './../../components'
-import { firebaseClient, persistenceMode } from './../../config/firebase/client'
+import { Logo, useAuth } from './../components'
 
 const validationSchema = yup.object().shape({
   email: yup.string().email('E-mail inválido').required('Preenchimento obrigatório'),
   password: yup.string().required('Preenchimento obrigatório'), // TO-DO: consultar no banco se existe user
 })
 
-export const Login = () => {
+export default function Login() {
+  const [auth, { login }] = useAuth()
+  const router = useRouter()
+
   const {
     values,
     errors,
@@ -33,18 +35,7 @@ export const Login = () => {
     handleBlur,
     isSubmitting
   } = useFormik({
-    onSubmit: async (values, form) => { 
-      firebaseClient.auth().setPersistence(persistenceMode)
-
-      try {
-        const user = await firebaseClient.auth().signInWithEmailAndPassword(values.email, values.password)
-        console.log(user);
-        console.log(firebaseClient.auth().currentUser)
-        
-      } catch(error) {
-        console.log(error)
-      }      
-    },
+    onSubmit: login,
     validationSchema,
     initialValues: {
       email: '',
@@ -53,9 +44,9 @@ export const Login = () => {
     }
   })
 
-  // useEffect(() => {
-  //   console.log('Sessão ativa: ', firebase.auth().currentUser)
-  // }, [])
+  useEffect(() => {
+    auth.user && router.push('/agenda')
+  }, [auth.user])
 
   return (
     <Container p={4} centerContent>
@@ -76,14 +67,6 @@ export const Login = () => {
           <FormLabel>Senha</FormLabel>
           <Input size="lg" type="password" value={values.password} onChange={handleChange} onBlur={handleBlur} />
           {touched.password && <FormHelperText textColor={'#e74c3c'}>{errors.password}</FormHelperText>}
-        </FormControl>
-
-        <FormControl id="username" p={4} isRequired>
-          <InputGroup size="lg">
-            <InputLeftAddon children="clocker.work/" />
-            <Input type="username" value={values.username} onChange={handleChange} onBlur={handleBlur} />
-          </InputGroup>
-          {touched.username && <FormHelperText textColor={'#e74c3c'}>{errors.username}</FormHelperText>}
         </FormControl>
 
         <Box p={4}>
