@@ -1,20 +1,62 @@
 
-import { Button } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { useAuth } from './../components'
+import axios from 'axios'
+import { useFetch } from '@refetty/react'
+import { addDays, subDays } from 'date-fns'
 
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import { Box, Button, Container, IconButton } from '@chakra-ui/react'
+
+import { useAuth, Logo, formatDate } from './../components'
+
+const getAgenda = ({ token, when }) => axios({
+  method: 'get',
+  url: '/api/agenda',
+  params: {
+    when
+  },
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+}) 
+
+const Header = ({ children }) => (
+  <Box p={4} display="flex" alignItems="center" justifyContent="space-between">
+    {children}
+  </Box>
+)
 export default function Agenda() {
-  const [auth, { logout }] = useAuth()
   const router = useRouter()
+  const [auth, { logout }] = useAuth()
+  const [when, setWhen] = useState(() => new Date())
+  const [data, { loading, status, error }, fetch] = useFetch(getAgenda, { lazy: true })
+
+  const addDay = () => setWhen(prevState => addDays(prevState, 1)) // prevState evita uma série de problemas
+  const subDay = () => setWhen(prevState => subDays(prevState, 1)) // como a concorrência
 
   useEffect(() => {
     !auth.user && router.push('/')
   }, [auth.user])
 
-    return (
-      <div>
-          <Button onClick={logout}>Sair</Button>
-      </div>
-    )
-  }
+  useEffect(() => {
+    fetch(when)
+  }, [when])
+
+  return (
+    <Container>
+      <Header>
+        <Logo size={150} />
+        <Button onClick={logout}>Sair</Button>
+      </Header>
+
+      <Box mt={8} display="flex" alignItems="center">
+        <IconButton icon={<ChevronLeftIcon />} bg="transparent" onClick={subDay}/>
+        <Box flex={1} textAlign="center">
+          {formatDate(when, 'PPPP')}
+        </Box>
+        <IconButton icon={<ChevronRightIcon />} bg="transparent" onClick={addDay}/>
+      </Box>
+    </Container>
+  )
+}
