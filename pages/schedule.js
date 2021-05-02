@@ -8,7 +8,7 @@ import { addDays, subDays } from 'date-fns'
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Box, Button, Container, IconButton, SimpleGrid, Spinner } from '@chakra-ui/react'
 
-import { useAuth, Logo, formatDate } from './../components'
+import { useAuth, Logo, formatDate, TimeBlock } from './../components'
 
 const getSchedule = async ({ when }) => {
 
@@ -24,14 +24,6 @@ const Header = ({ children }) => (
     {children}
   </Box>
 )
-
-const TimeBlock = ({ time }) => {
-    return (
-        <Button p={8} bg="blue.500" color="white">
-            {time}
-        </Button>
-    )
-}
 
 export default function Schedule() {
   const router = useRouter()
