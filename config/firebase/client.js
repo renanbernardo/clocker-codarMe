@@ -1,7 +1,6 @@
 import firebaseClient from 'firebase/app'
 import 'firebase/auth'
 
-// TO-DO Jogar para uma variável de ambiente
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
