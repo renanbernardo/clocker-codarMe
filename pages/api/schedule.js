@@ -2,7 +2,7 @@ import { firebaseServer } from './../../config/firebase/server'
 import { differenceInHours, format, addHours } from 'date-fns'
 
 const db = firebaseServer.firestore()
-const profile = db.collection('profile')
+const profile = db.collection('profiles')
 const agenda = db.collection('schedule')
 
 const startAt = new Date(2021, 1, 1, 8, 0)
@@ -16,7 +16,36 @@ for (let blockIndex = 0; blockIndex <= totalHours; blockIndex++) {
     timeBlocks.push(time)
 }
 
-export default async (req, res) => {
+const getUserId = async (username) => {
+    const profileDoc = await profile
+    .where('username', '===', username)
+    .get()
+
+    const { userId } = profileDoc.docs[0].data()
+
+    return userId
+}
+
+const setSchedule = async (req, res) => { 
+    const userId = await getUserId(req.body.username)
+    const doc = await agenda.doc(`${userId}#${req.body.when}`).get()
+
+    // guard clause
+    if (doc.exists) {
+        return res.status(400)
+    }
+
+    await agenda.doc(`${userId}#${req.body.when}`).set({
+        userId,
+        when: req.body.when,
+        name: req.body.name,
+        phone: req.body.phone
+    })
+
+    res.status(200)
+}
+
+const getSchedule = (req, res) => { 
     try {
         // const profileDoc = await profile
         // .where('username', '==', req.query.username)
@@ -32,6 +61,24 @@ export default async (req, res) => {
         console.log('Firebase Error: ', error)
         return res.status(401)
     }
-
-    res.status(200).json({ name: 'John Doe' })
 }
+
+// HashMap
+const methods = {
+    POST: setSchedule,
+    GET: getSchedule,
+}
+
+export default async (req, res) => methods[req.method] 
+    ? methods[req.method](req, res) 
+    : res.status(405)
+    
+    // if (req.method === 'POST') {
+    //     console.log('POST')
+    // } else if (req.method === 'GET') {
+    //     console.log('GET')
+    // } else {
+    //     res.status(405) // method not allowed, not created
+    // }    
+
+    
