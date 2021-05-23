@@ -6,7 +6,7 @@ import { addDays, subDays } from 'date-fns'
 import axios from 'axios'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Container, IconButton, SimpleGrid, Spinner } from '@chakra-ui/react'
+import { Box, Container, IconButton, Button, SimpleGrid, Spinner } from '@chakra-ui/react'
 
 import { useAuth, Logo, formatDate, TimeBlock } from '../components'
 
@@ -44,6 +44,7 @@ export default function Schedule() {
     <Container>
       <Header>
         <Logo size={150} />
+        <Button onClick={logout}>Sair</Button>
       </Header>
 
       <Box mt={8} display="flex" alignItems="center">

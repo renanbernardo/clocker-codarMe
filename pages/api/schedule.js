@@ -3,7 +3,7 @@ import { differenceInHours, format, addHours } from 'date-fns'
 
 const db = firebaseServer.firestore()
 const profile = db.collection('profiles')
-const agenda = db.collection('schedule')
+const agenda = db.collection('agenda')
 
 const startAt = new Date(2021, 1, 1, 8, 0)
 const endAt = new Date(2021, 1, 1, 17, 0)
@@ -18,31 +18,40 @@ for (let blockIndex = 0; blockIndex <= totalHours; blockIndex++) {
 
 const getUserId = async (username) => {
     const profileDoc = await profile
-    .where('username', '===', username)
+    .where('username', '==', username)
     .get()
 
-    const { userId } = profileDoc.docs[0].data()
+    if (!profileDoc.docs.length) {
+        return false
+    }
+
+     const { userId } = profileDoc.docs[0].data()
 
     return userId
 }
 
 const setSchedule = async (req, res) => { 
     const userId = await getUserId(req.body.username)
-    const doc = await agenda.doc(`${userId}#${req.body.when}`).get()
+    const docId = `${userId}#${req.body.date}#${req.body.time}`
+    
+    const doc = await agenda.doc(docId).get()
 
     // guard clause
     if (doc.exists) {
-        return res.status(400).json({message: 'Time Blocked!'})
+        console.log('doc')
+        res.status(400).json({ message: 'Time Blocked!' })
+        return
     }
 
-    const block = await agenda.doc(`${userId}#${req.body.when}`).set({
+    const block = await agenda.doc(docId).set({
         userId,
-        when: req.body.when,
+        date: req.body.date,
+        time: req.body.time,
         name: req.body.name,
-        phone: req.body.phone
+        phone: req.body.phone,
     })
 
-    res.status(200).json(block.data)
+    res.status(200).json(block)
 }
 
 const getSchedule = (req, res) => { 
@@ -71,14 +80,4 @@ const methods = {
 
 export default async (req, res) => methods[req.method] 
     ? methods[req.method](req, res) 
-    : res.status(405)
-    
-    // if (req.method === 'POST') {
-    //     console.log('POST')
-    // } else if (req.method === 'GET') {
-    //     console.log('GET')
-    // } else {
-    //     res.status(405) // method not allowed, not created
-    // }    
-
-    
+    : res.status(405)   
