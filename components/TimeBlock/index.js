@@ -15,18 +15,18 @@ import {
 
 import { Input } from '../Input'
 
-const setSchedule = async  data => {
+const setSchedule = async data => {
     return axios({
-      method: 'post',
-      url: '/api/schedule',
-      data: { 
-          ... data,
+        method: 'post',
+        url: '/api/schedule',
+        data: {
+            ...data,
             username: window.location.pathname.replace('/', '')
         },
     })
-  }
+}
 
-const ModalTimeBlock = ({ isOpen, onClose, onComplete, children }) => (
+const ModalTimeBlock = ({ isOpen, onClose, onComplete, isSubmitting, children }) => (
     <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -37,8 +37,8 @@ const ModalTimeBlock = ({ isOpen, onClose, onComplete, children }) => (
             </ModalBody>
 
             <ModalFooter>
-                <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-                <Button colorScheme="blue" mr={3} onClick={onComplete}>
+                {isSubmitting && <Button variant="ghost" onClick={onClose}>Cancelar</Button>}
+                <Button colorScheme="blue" mr={3} onClick={onComplete} isLoading={isSubmitting}>
                     Reservar Horário
                   </Button>
             </ModalFooter>
@@ -50,8 +50,15 @@ export const TimeBlock = ({ time }) => {
     const [isOpen, setIsOpen] = useState(false)
     const toggle = () => setIsOpen(prevState => !prevState)
 
-    const { values, handleSubmit, handleChange, handleBlur, errors, touched } = useFormik({
-        onSubmit: (values) => setSchedule({ ...values, when: time }),
+    const { values, handleSubmit, handleChange, handleBlur, errors, touched, isSubmitting } = useFormik({
+        onSubmit: async (values) => {
+            try {
+                await setSchedule({ ...values, when: time }) 
+                toggle()               
+            } catch (error) {
+                console.log(error)
+            }
+        },
         initialValues: {
             name: '', // pode ser que tenha sido corrigido nas versões mais novas
             email: '',
@@ -67,7 +74,11 @@ export const TimeBlock = ({ time }) => {
     return (
         <Button p={8} bg="blue.500" color="white" onClick={toggle}>
             {time}
-            <ModalTimeBlock isOpen={isOpen} onClose={toggle} onComplete={handleSubmit}>
+            <ModalTimeBlock
+                isOpen={isOpen}
+                onClose={toggle}
+                onComplete={handleSubmit}
+                isSubmitting={isSubmitting}>
                 <>
                     <Input
                         label="Nome:"
@@ -79,6 +90,7 @@ export const TimeBlock = ({ time }) => {
                         size="lg"
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        disabled={isSubmitting}
                     />
                     <Input
                         label="Telefone:"
