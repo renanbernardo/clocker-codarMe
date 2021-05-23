@@ -16,8 +16,8 @@ import {
 import { Input } from '../Input'
 import { format } from 'date-fns'
 
-const setSchedule = async({date, ...data}) => {
-    return axios({
+const setSchedule = async({date, ...data}) =>
+    axios({
         method: 'post',
         url: '/api/schedule',
         data: {
@@ -26,7 +26,6 @@ const setSchedule = async({date, ...data}) => {
             username: window.location.pathname.replace('/', '')
         },
     })
-}
 
 const ModalTimeBlock = ({ isOpen, onClose, onComplete, isSubmitting, children }) => (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -48,7 +47,7 @@ const ModalTimeBlock = ({ isOpen, onClose, onComplete, isSubmitting, children })
     </Modal>
 )
 
-export const TimeBlock = ({ time, date }) => {
+export const TimeBlock = ({ time, date, disabled }) => {
     const [isOpen, setIsOpen] = useState(false)
     const toggle = () => setIsOpen(prevState => !prevState)
 
@@ -73,9 +72,9 @@ export const TimeBlock = ({ time, date }) => {
 
     // <> </> Fragment
     return (
-        <Button p={8} bg="blue.500" color="white" onClick={toggle}>
+        <Button p={8} bg="blue.500" color="white" onClick={toggle} disabled={disabled}>
             {time}
-            <ModalTimeBlock
+            {!disabled && <ModalTimeBlock
                 isOpen={isOpen}
                 onClose={toggle}
                 onComplete={handleSubmit}
@@ -98,6 +97,7 @@ export const TimeBlock = ({ time, date }) => {
                         values={values.phone}
                         error={errors.phone}
                         name="phone"
+                        mask={['(99) 9999-9999', '(99) 9 9999-9999']}
                         placeholder="Seu Telefone"
                         size="lg"
                         mt={4}
@@ -105,7 +105,7 @@ export const TimeBlock = ({ time, date }) => {
                         onBlur={handleBlur}
                     />
                 </>
-            </ModalTimeBlock>
+            </ModalTimeBlock>}
         </Button>
     )
 }

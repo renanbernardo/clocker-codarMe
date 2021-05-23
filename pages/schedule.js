@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useFetch } from '@refetty/react'
-import { addDays, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 import axios from 'axios'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
@@ -10,14 +10,14 @@ import { Box, Container, IconButton, Button, SimpleGrid, Spinner } from '@chakra
 
 import { useAuth, Logo, formatDate, TimeBlock } from '../components'
 
-const getSchedule = async ({ when }) => {
-
-  return axios({
+const getSchedule = async (when) => axios({
     method: 'get',
     url: '/api/schedule',
-    params: { when, username: window.location.pathname },
+    params: { 
+      username: window.location.pathname.replace('/', ''),
+      date: format(when, 'yyyy-MM-dd') 
+    },
   })
-}
 
 const Header = ({ children }) => (
   <Box p={4} display="flex" alignItems="center" justifyContent="space-between">
@@ -57,7 +57,7 @@ export default function Schedule() {
 
       <SimpleGrid p={4} columns={2} spacing={4}>
           {loading && <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl"/>}
-          {data?.map(time  => <TimeBlock key={time} time={time} date={when} />)}
+          {data?.map(({ time, isBlocked })  => <TimeBlock key={time} time={time} date={when} disabled={isBlocked} />)}
       </SimpleGrid>
     </Container>
   )
