@@ -9,12 +9,13 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Box, Container, IconButton, Button, SimpleGrid, Spinner } from '@chakra-ui/react'
 
 import { useAuth, Logo, formatDate, TimeBlock } from '../components'
+import { redirect } from 'next/dist/next-server/server/api-utils'
 
-const getSchedule = async (when) => axios({
+const getSchedule = async ({ when, username }) => axios({
     method: 'get',
     url: '/api/schedule',
     params: { 
-      username: window.location.pathname.replace('/', ''),
+      username,
       date: format(when, 'yyyy-MM-dd') 
     },
   })
@@ -37,9 +38,14 @@ export default function Schedule() {
   
   // forma de organização: Deixar o useEffect o mais próximo do render
   useEffect(() => {
-    fetch(when)
-  }, [when])
+    fetch({ when, username: router.query.username })
+  }, [when, router.query.username])
   
+  // TODO: Fazer tratamento
+  // if (error) {
+  //   redirect(404)
+  // }
+
   return (
     <Container>
       <Header>

@@ -58,6 +58,10 @@ const getSchedule = async (req, res) => {
     try {
         const userId = await getUserId(req.query.username)
 
+        if (!userId) {
+            return res.status(404).json({ message: 'Invalid username' })
+        }
+
         const snapshot = await agenda
         .where('userId', '==', userId)
         .where('date', '==', req.query.date)
