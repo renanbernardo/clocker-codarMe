@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import { useFetch } from '@refetty/react'
-import { addDays, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Container, IconButton } from '@chakra-ui/react'
+import { Box, Button, Container, IconButton, Spinner } from '@chakra-ui/react'
 
 import { getToken } from './../config/firebase/client'
 import { useAuth, Logo, formatDate } from './../components'
@@ -18,7 +18,7 @@ const getAgenda = async ({ when }) => {
     method: 'get',
     url: '/api/agenda',
     params: {
-      when
+      date: format(when, 'yyyy-MM-dd')
     },
     headers: {
       Authorization: `Bearer ${token}`
@@ -54,7 +54,7 @@ export default function Agenda() {
         <Logo size={150} />
         <Button onClick={logout}>Sair</Button>
       </Header>
-
+      {/* Componetizar */}
       <Box mt={8} display="flex" alignItems="center">
         <IconButton icon={<ChevronLeftIcon />} bg="transparent" onClick={subDay}/>
         <Box flex={1} textAlign="center">
@@ -62,6 +62,12 @@ export default function Agenda() {
         </Box>
         <IconButton icon={<ChevronRightIcon />} bg="transparent" onClick={addDay}/>
       </Box>
+
+      {loading && <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl"/>}
+
+      {data?.map(doc => (
+        <AgendaBlock key={doc.time} time={doc.time} name={doc.name} phone={doc.phone} />
+      ))}
     </Container>
   )
 }

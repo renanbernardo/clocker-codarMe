@@ -8,8 +8,7 @@ import axios from 'axios'
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Box, Container, IconButton, Button, SimpleGrid, Spinner } from '@chakra-ui/react'
 
-import { useAuth, Logo, formatDate, TimeBlock } from '../components'
-import { redirect } from 'next/dist/next-server/server/api-utils'
+import { Logo, formatDate, TimeBlock } from '../components'
 
 const getSchedule = async ({ when, username }) => axios({
     method: 'get',
@@ -28,10 +27,9 @@ const Header = ({ children }) => (
 
 export default function Schedule() {
   const router = useRouter()
-  const [auth, { logout }] = useAuth()
   // TO-DO: when, addDay, subDay e data Podem ser um único Hook:
   const [when, setWhen] = useState(() => new Date())
-  const [data, { loading, status, error }, fetch] = useFetch(getSchedule, { lazy: true })
+  const [data, { loading }, fetch] = useFetch(getSchedule, { lazy: true })
 
   const addDay = () => setWhen(prevState => addDays(prevState, 1)) // prevState evita uma série de problemas
   const subDay = () => setWhen(prevState => subDays(prevState, 1)) // como a concorrência
@@ -50,7 +48,6 @@ export default function Schedule() {
     <Container>
       <Header>
         <Logo size={150} />
-        <Button onClick={logout}>Sair</Button>
       </Header>
 
       <Box mt={8} display="flex" alignItems="center">
@@ -60,7 +57,7 @@ export default function Schedule() {
         </Box>
         <IconButton icon={<ChevronRightIcon />} bg="transparent" onClick={addDay}/>
       </Box>
-
+{/* Componetizar */}
       <SimpleGrid p={4} columns={2} spacing={4}>
           {loading && <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl"/>}
           {data?.map(({ time, isBlocked })  => <TimeBlock key={time} time={time} date={when} disabled={isBlocked} />)}

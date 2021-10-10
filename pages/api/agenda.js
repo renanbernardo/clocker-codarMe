@@ -19,7 +19,7 @@ export default async (req, res) => {
         .get()
 
         const docs = snapshot.docs.map(doc => doc.data())
-
+        // TODO Trazer os horários livres
         return res.status(200).json(docs)
     } catch (error) {
         console.log('Firebase Error: ', error)
